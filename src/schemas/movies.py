@@ -1,7 +1,7 @@
 import datetime
 from typing import Optional
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, field_validator
 
 
 class CountrySchema(BaseModel):
@@ -53,6 +53,21 @@ class MovieBase(BaseModel):
     status: str
     budget: float = Field(ge=0)
     revenue: float = Field(ge=0)
+
+    @field_validator("date")
+    @classmethod
+    def validate_date_not_too_far_in_future(cls, v: datetime.date):
+        today = datetime.date.today()
+
+        try:
+            one_year_from_now = today.replace(year=today.year + 1)
+        except ValueError:
+            one_year_from_now = today + datetime.timedelta(days=365)
+
+        if v > one_year_from_now:
+            raise ValueError("The date must not be more than one year in the future.")
+
+        return v
 
 
 class MovieCreate(MovieBase):
