@@ -114,7 +114,7 @@ async def create_movie(movie_in: MovieCreate, db: AsyncSession = Depends(get_db)
     try:
         await db.commit()
         await db.refresh(new_movie)
-    except Exception as e:
+    except Exception:
         await db.rollback()
         raise HTTPException(status_code=400, detail="Invalid input data.")
 
